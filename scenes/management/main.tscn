@@ -1,7 +1,8 @@
-[gd_scene load_steps=3 format=3 uid="uid://pfmmtkknoa7o"]
+[gd_scene load_steps=4 format=3 uid="uid://pfmmtkknoa7o"]
 
 [ext_resource type="Script" uid="uid://dt02amknwu3o1" path="res://scenes/management/octet_display.gd" id="2_4ln2c"]
 [ext_resource type="Script" uid="uid://cqgs6kepjn3hy" path="res://scenes/management/scrape_progress_bar.gd" id="3_bevc2"]
+[ext_resource type="Script" uid="uid://kdrohb338wd2" path="res://scenes/management/data_display.gd" id="3_kyxu6"]
 
 [node name="Main" type="Node"]
 
@@ -23,8 +24,24 @@ vertical_alignment = 1
 script = ExtResource("2_4ln2c")
 
 [node name="ScrapeProgressBar" type="ProgressBar" parent="."]
-offset_top = 27.0
+offset_top = 12.0
 offset_right = 320.0
-offset_bottom = 43.0
+offset_bottom = 28.0
 size_flags_horizontal = 3
 script = ExtResource("3_bevc2")
+
+[node name="DataDisplay" type="RichTextLabel" parent="."]
+offset_top = 28.0
+offset_right = 320.0
+offset_bottom = 79.0
+bbcode_enabled = true
+text = "MAX: 30
+UNP: 0
+VAL: 0
+JNK: 0"
+fit_content = true
+scroll_active = false
+autowrap_mode = 0
+horizontal_alignment = 1
+vertical_alignment = 1
+script = ExtResource("3_kyxu6")
