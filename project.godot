@@ -20,7 +20,7 @@ config/icon="res://assets/textures/icon.svg"
 Refs="*res://auto_load/refs.gd"
 SB="*res://auto_load/signal_bus.gd"
 Utils="*res://auto_load/utils.gd"
-PM="*res://auto_load/progress_manager.gd"
+PM="*res://auto_load/progress_manager.tscn"
 
 [display]
 

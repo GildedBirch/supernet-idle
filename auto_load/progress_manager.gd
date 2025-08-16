@@ -1,18 +1,72 @@
 extends Node
 
 
+const _first_octet_increase: float = 5.0
+const _second_octet_increase: float = 2.5
+const _third_octet_increase: float = 1.0
+const _fourth_octet_increase: float = 0.2
+
 var first_octet: int = 0
 var second_octet: int = 0
 var third_octet: int = 0
 var fourth_octet: int = 0
 
-var scrape_time: float = 20.0 ## Time to scrape one fourth octet
+var scrape_time: float = 0.1 ## Time to scrape one fourth octet
 var unparsed_data: int = 0 ## Unparsed data that's been downloaded
 var valued_data: int = 0 ## Data that was successfully parsed
 var junk_data: int = 0 ## Data that failed to parse
 var data_storage_size: int = 30 ## Maxium data storage for data
 
+var penetration_power: float = 0.1
+var firewall_strength: float = 1.0
+
 var prestige: int = 0 ## Counter for fully scraping the supernet
+@onready var scrape_timer: Timer = %ScrapeTimer
+
+
+func _ready() -> void:
+	scrape_timer.timeout.connect(_on_scrape_timer_timeout)
+	scrape_timer.wait_time = scrape_time
+	scrape_timer.start()
+
+
+func _process(delta: float) -> void:
+	#TODO limit rate?
+	if not scrape_timer.is_stopped():
+		SB.game.scrape_timer_value_changed.emit(scrape_timer.time_left)
+
+
+func _on_scrape_timer_timeout() -> void:
+	_on_increase_octet()
+
+
+func _on_increase_octet() -> void:
+	fourth_octet += 1
+	firewall_strength += _fourth_octet_increase
+	
+	if fourth_octet > 255:
+		fourth_octet = 0
+		third_octet += 1
+		firewall_strength += _third_octet_increase
+	
+	if third_octet > 255:
+		third_octet = 0
+		second_octet += 1
+		firewall_strength += _second_octet_increase
+	
+	if second_octet > 255:
+		second_octet = 0
+		first_octet += 1
+		firewall_strength += _first_octet_increase
+	
+	if first_octet > 255:
+		first_octet = 0
+		prestige += 1
+		firewall_strength = 1.0
+		SB.game.prestige_increased.emit()
+
+	firewall_strength = snappedf(firewall_strength, 0.1)
+	SB.game.octet_increased.emit(first_octet, second_octet, third_octet, fourth_octet)
 
 
 ## Save game to JSON file

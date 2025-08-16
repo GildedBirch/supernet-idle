@@ -1,0 +1,9 @@
+[gd_scene load_steps=2 format=3 uid="uid://b3kb2uqoq6c8c"]
+
+[ext_resource type="Script" uid="uid://sudgx5jsnmry" path="res://auto_load/progress_manager.gd" id="1_a0veq"]
+
+[node name="ProgressManager" type="Node"]
+script = ExtResource("1_a0veq")
+
+[node name="ScrapeTimer" type="Timer" parent="."]
+unique_name_in_owner = true
