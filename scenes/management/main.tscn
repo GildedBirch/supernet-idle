@@ -1,3 +1,13 @@
-[gd_scene format=3 uid="uid://pfmmtkknoa7o"]
+[gd_scene load_steps=2 format=3 uid="uid://pfmmtkknoa7o"]
+
+[ext_resource type="PackedScene" uid="uid://cgct2s25hx8o4" path="res://scenes/console_button/console_button.tscn" id="1_yydha"]
 
 [node name="Main" type="Node"]
+
+[node name="ConsoleButton" parent="." instance=ExtResource("1_yydha")]
+offset_left = 23.0
+offset_top = 33.0
+offset_right = 79.0
+offset_bottom = 45.0
+size_flags_horizontal = 3
+size_flags_vertical = 4
