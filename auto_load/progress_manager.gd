@@ -1,41 +1,62 @@
 extends Node
 
 
+#region Octets
+# How much each octet increase ups firewall level
 const _first_octet_increase: float = 5.0
 const _second_octet_increase: float = 2.5
 const _third_octet_increase: float = 1.0
 const _fourth_octet_increase: float = 0.1
-
+# Current octets
 var first_octet: int = 0
 var second_octet: int = 0
 var third_octet: int = 0
 var fourth_octet: int = 0
+#endregion
 
-## Time to scrape one fourth octet
-var scrape_time: float = 0.5
-## How much unparsed data each successful scrape gives
+#region Scraping
+# Time to scrape one fourth octet
+var scrape_time: float = 1.0
+# How much unparsed data each successful scrape gives
 var data_per_scrape: int = 1
-## Unparsed data that's been downloaded
-var unparsed_data: int = 0
-## Data that was successfully parsed
-var valued_data: int = 0
-## Data that failed to parse
-var junk_data: int = 0
-## Maxium data storage for data
+#endregion
+
+#region Data
+# Maxium data storage for data
 var data_storage_size: int = 30
-## Penetration power of scraping
+# Unparsed data that's been downloaded
+var unparsed_data: int = 0
+# Data that was successfully parsed
+var valued_data: int = 0
+# Data that failed to parse
+var junk_data: int = 0
+# Time to process data
+var process_time: float = 5.0
+# Change of producing valuable data instead of junk
+var process_efficiency: float = 1.0
+#endregion
+
+#region Firewall
+# Penetration power of scraping
 var penetration_power: float = 0.5
-## Strength of the firewall. will increase each successful scrape
+# Strength of the firewall. will increase each successful scrape
 var firewall_strength: float = 1.0
-## Counter for fully scraping the supernet
+#endregion
+
+# Counter for fully scraping the supernet
 var prestige: int = 0
+
 @onready var scrape_timer: Timer = %ScrapeTimer
+@onready var data_process_timer: Timer = %DataProcessTimer
 
 
 func _ready() -> void:
 	scrape_timer.timeout.connect(_on_scrape_timer_timeout)
+	data_process_timer.timeout.connect(_on_data_process_timer_timeout)
+	SB.game.data_values_changed.connect(_on_data_values_changed)
 	scrape_timer.wait_time = scrape_time
 	scrape_timer.start()
+	data_process_timer.wait_time = process_time
 	_print_chances()
 
 
@@ -43,6 +64,7 @@ func _process(delta: float) -> void:
 	#TODO limit rate?
 	if not scrape_timer.is_stopped():
 		SB.game.scrape_timer_value_changed.emit(scrape_timer.time_left)
+		SB.game.data_process_timer_value_changed.emit(data_process_timer.time_left)
 
 
 ## On timeout we compare our penetration power to firewall
@@ -66,6 +88,44 @@ func _on_scrape_timer_timeout() -> void:
 				add_unparsed_data()
 			return
 		rand -= loot_entry.weight
+
+
+func _on_data_process_timer_timeout() -> void:
+	var total: float = 0
+	var table_entries: Array[Dictionary] = [
+		{"item": "valuable", "weight": process_efficiency},
+		{"item": "junk", "weight": 100.0},
+	]
+
+	for loot_entry in table_entries:
+		total += loot_entry.weight
+	
+	var rand = randf() * total
+	
+	for loot_entry in table_entries:
+		if rand < loot_entry.weight:
+			parse_data(loot_entry.item)
+			return
+		rand -= loot_entry.weight
+
+
+func parse_data(result: String) -> void:
+	if result == "valuable":
+		valued_data += 1
+	else:
+		junk_data += 1
+	unparsed_data -= 1
+	if unparsed_data <= 0:
+		data_process_timer.stop()
+	SB.game.data_values_changed.emit(data_storage_size, unparsed_data, valued_data, junk_data)
+
+
+func _on_data_values_changed(_max: int, _unparsed: int, _valued: int, _junk: int) -> void:
+	if unparsed_data > 0 and data_process_timer.is_stopped():
+		data_process_timer.start()
+	if scrape_timer.is_stopped():
+		if unparsed_data < data_storage_size:
+			scrape_timer.start()
 
 
 func increase_octet() -> void:
@@ -98,8 +158,7 @@ func increase_octet() -> void:
 
 
 func add_unparsed_data() -> void:
-	var total: int = unparsed_data + valued_data + junk_data
-	if total < data_storage_size:
+	if unparsed_data + data_per_scrape <= data_storage_size:
 		unparsed_data += data_per_scrape
 		SB.game.data_values_changed.emit(data_storage_size, unparsed_data, valued_data, junk_data)
 	else:

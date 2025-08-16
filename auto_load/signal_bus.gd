@@ -13,5 +13,6 @@ class GameSignals:
 	signal prestige_increased(prestige: int)
 	## Called when scrape timer runs
 	signal scrape_timer_value_changed(value: float)
+	signal data_process_timer_value_changed(value: float)
 	signal scrape_time_changed(value: float)
 	signal scrape_timer_stopped

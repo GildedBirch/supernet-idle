@@ -8,4 +8,4 @@ func _ready() -> void:
 
 
 func _on_scrape_timer_value_changed(new_value: float) -> void:
-	value = new_value
+	value = max_value - new_value
