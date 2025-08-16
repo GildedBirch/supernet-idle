@@ -41,7 +41,8 @@ func _ready() -> void:
 		pass #add_theme_color_override("font_color", Colors.disabled)
 	focus_entered.connect(_on_focus_entered)
 	focus_exited.connect(_on_focus_exited)
-	grab_focus()
+	PM.save_game()
+	PM.load_game()
 
 
 func _on_focus_entered() -> void:
